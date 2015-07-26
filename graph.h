@@ -3,6 +3,8 @@
 #include <vector>
 #include <cassert>
 
+#define MAX_DIST 10000
+
 using namespace std;
 
 /*
@@ -17,14 +19,15 @@ int** make_empty_graph(int V){
     for(i=0; i<V; i++){
         graph[i] = (int*)malloc(V * sizeof(int));
         for(j=0; j<V; j++){
-            graph[i][j] = 0;
+            graph[i][j] = MAX_DIST;
         }
+        graph[i][i] = 0;
     }
 
     return graph;
 }
 
-int** read_unweighted_graph(char* path, int& V, bool is_directed){
+int** read_unweighted_graph(const char* path, int& V, bool is_directed){
     cout << "Reading undirected unweighted graph..." << endl;
     fstream fs(path, fstream::in);
     fs >> V; // number of vertices
@@ -44,7 +47,7 @@ int** read_unweighted_graph(char* path, int& V, bool is_directed){
     return graph;
 }
 
-int** read_weighted_graph(char* path, int& V, bool is_directed){
+int** read_weighted_graph(const char* path, int& V, bool is_directed){
     cout << "Reading undirected weighted graph..." << endl;
     fstream fs(path, fstream::in);
     fs >> V; // number of vertices
@@ -65,17 +68,17 @@ int** read_weighted_graph(char* path, int& V, bool is_directed){
     return graph;
 }
 
-int** read_undirected_unweighted_graph(char* path, int& V){
+int** read_undirected_unweighted_graph(const char* path, int& V){
     return read_unweighted_graph(path, V, false);
 }
-int** read_directed_unweighted_graph(char* path, int& V){
+int** read_directed_unweighted_graph(const char* path, int& V){
     return read_unweighted_graph(path, V, true);
 }
 
-int** read_undirected_weighted_graph(char* path, int& V){
+int** read_undirected_weighted_graph(const char* path, int& V){
     return read_weighted_graph(path, V, false);
 }
-int** read_directed_weighted_graph(char* path, int& V){
+int** read_directed_weighted_graph(const char* path, int& V){
     return read_weighted_graph(path, V, true);
 }
 
@@ -183,5 +186,24 @@ void print_all_destination_paths(int* parent, int V, int source){
             print_path(parent, source, i);
             cout << endl;
         }
+    }
+}
+
+void print_all_pair_shortest_paths(int** parent, int V){
+    int i;
+    for(i=0; i<V; i++){
+        cout << "Source node: " << i << endl;
+        print_all_destination_paths(parent[i], V, i);
+    }
+}
+
+void print_all_pair_shortest_distance(int** dis, int V){
+    int i;
+    for(i=0; i<V; i++){
+        cout << "Source node: " << i << endl;
+        for(int j=0; j<V; j++){
+            cout << dis[i][j] << " ";
+        }
+        cout << endl;
     }
 }
