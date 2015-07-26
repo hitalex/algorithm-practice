@@ -1,10 +1,12 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <cassert>
 
 using namespace std;
 
 /*
-    包含图处理相关的helper function
+    邻接矩阵的图表示处理
 */
 
 // make a empty graph
@@ -77,7 +79,6 @@ int** read_directed_weighted_graph(char* path, int& V){
     return read_weighted_graph(path, V, true);
 }
 
-
 void print_graph(int** graph, int V){
     cout << "Num. of vertice: " << V << endl;
     int i, j;
@@ -88,6 +89,77 @@ void print_graph(int** graph, int V){
         cout << endl;
     }
 }
+
+/*
+    Edge list表示方式
+*/
+struct Edge{
+    int from;
+    int to;
+    int w;
+};
+
+vector<Edge*> read_directed_weighted_edgelist(const char* path, int&V){
+    vector<Edge*> edgelist;
+    fstream f(path, fstream::in);
+    f >> V;
+    int from, to, w;
+    while(f >> from >> to >> w){
+        assert(from>=0 && from<V);
+        assert(to>=0 && to<V);
+        Edge* p = new Edge;
+        p->from = from;
+        p->to = to;
+        p->w = w;
+        edgelist.push_back(p);
+    }
+
+    return edgelist;
+}
+
+
+/*
+    邻接表的图表示
+*/
+
+struct AdjNode{
+    int v;
+    int w;
+};
+
+vector< vector<AdjNode*> > read_directed_weighted_adjlist(const char* path, int& V){
+    vector< vector<AdjNode*> > adjlist;
+    fstream f(path, fstream::in);
+    f >> V;
+    for(int i=0; i<V; i++){
+        vector<AdjNode*> tmp;
+        adjlist.push_back(tmp); // 压入空链表
+    }
+    int from, to, w;
+    while(f >> from >> to >> w){
+        assert(from>=0 && from<V);
+        assert(to>=0 && to<V);
+        AdjNode *p = new AdjNode;
+        p->v = to;
+        p->w = w;
+        adjlist[from].push_back(p);
+    }
+
+    return adjlist;
+}
+
+void print_adjlist_graph(vector<vector<AdjNode*> > graph, int V){
+    int i;
+    cout << "Num. of vertice: " << V << endl;
+    for(i=0; i<V; i++){
+        vector<AdjNode*> tolist = graph[i];
+        for(int j=0; j<tolist.size(); j++){
+            cout << i << " -> " << tolist[j]->v << " with weight: " << tolist[j]->w << endl;
+        }
+    }
+}
+
+/// 关于输出路径的函数
 
 void print_path(int* parent, int s, int v){
     if(s == v){
@@ -100,5 +172,16 @@ void print_path(int* parent, int s, int v){
             cout << " -> " << v;
         }
     }
-    cout << endl;
+}
+
+// print paths to all destinations from single source
+void print_all_destination_paths(int* parent, int V, int source){
+    int i;
+    for(i=0; i<V; i++){
+        if(i != source){
+            cout << "Path from " << source << " to " << i << ": ";
+            print_path(parent, source, i);
+            cout << endl;
+        }
+    }
 }
