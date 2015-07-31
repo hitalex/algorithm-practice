@@ -112,7 +112,7 @@ int main(int argc, const char* argv[]){
     }
 
     int V;
-    // 采用邻接表的方式表示
+    // 采用邻接矩阵的方式表示
     int** graph = read_directed_weighted_graph(argv[1], V);
     int** dis = allocate_square_matrix(V, MAX_DIST);
     int** parent = allocate_square_matrix(V, -1);

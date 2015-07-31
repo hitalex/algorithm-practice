@@ -1,6 +1,7 @@
 #include <iostream>
 #include <climits>
 #include <cassert>
+#include <cstdlib>
 
 #include "graph.h"
 #include "priority_queue.h"
@@ -23,7 +24,7 @@ void set_key(Node* p, int key){
     p->dis = key;
 }
 
-void Dijkstra_shortest_path(int** graph, int V, int source, Node** node_array){
+void Dijkstra_array(int** graph, int V, int source, Node** node_array){
     // init single source
     int i;
     for(i=0; i<V; i++){
@@ -40,7 +41,7 @@ void Dijkstra_shortest_path(int** graph, int V, int source, Node** node_array){
     for(i=0; i<V; i++){
         Q.insert(node_array[i], i);
     }
-    Q.print_node_heap_mapping();
+    //Q.print_node_heap_mapping();
 
     while(Q.get_size() > 0){
         Node* u = Q.extract_min();
@@ -49,7 +50,7 @@ void Dijkstra_shortest_path(int** graph, int V, int source, Node** node_array){
         for(j=0; j<V; j++){
             // TODO: assume all weight is positive
             if(graph[u->index][j] > 0 && node_array[j]->dis > u->dis + graph[u->index][j]){
-                cout << "Check neighbour: " << j << endl;
+                //cout << "Check neighbour: " << j << endl;
                 // set parent
                 node_array[j]->parent = u->index;
                 // adjust the heap
@@ -57,6 +58,50 @@ void Dijkstra_shortest_path(int** graph, int V, int source, Node** node_array){
                 //Q.print_node_heap_mapping();
             }
         }
+    }
+}
+
+// 采用邻接表实现的Dijkstra算法
+void Dijkstra_adjlist(vector<vector<AdjNode*> >graph, int V, int source, int* dis, int* parent){
+    vector<Node*> node_array;
+    int i;
+    for(i=0; i<V; i++){
+        Node* p = new Node;
+        p->index = i;
+        p->dis = MAX_DIST; // unreachable
+        p->parent = -1; // no parent
+        node_array.push_back(p);
+    }
+    node_array[source]->dis = 0;
+
+    // init priority_queue
+    MinHeap<Node*> Q(MAX_ELEMENTS);
+    for(i=0; i<V; i++){
+        Q.insert(node_array[i], i);
+    }
+    //Q.print_node_heap_mapping();
+
+    while(Q.get_size() > 0){
+        Node* from = Q.extract_min();
+        cout << "Selecting node: " << from->index << endl;
+        int j;
+        for(j=0; j<graph[from->index].size(); j++){
+            int to_index = graph[from->index][j]->v;
+            Node* to = node_array[to_index];
+            //cout << "Check neighbour: " << to->index << endl;
+            if(to->dis > from->dis + graph[from->index][j]->w){
+                // set parent
+                to->parent = from->index;
+                // adjust the heap
+                Q.decrease_key(to->index, from->dis + graph[from->index][j]->w);
+                //Q.print_node_heap_mapping();
+            }
+        }
+    }
+
+    for(i=0; i<V; i++){
+        dis[i] = node_array[i]->dis;
+        parent[i] = node_array[i]->parent;
     }
 }
 
@@ -90,16 +135,42 @@ void test_heap(){
     cout << endl;
 }
 
-int main(){
-    int V;
-    int** graph;
+/*
+int main(int argc, const char* argv[]){
+    if(argc < 3){
+        printf("./Dijkstra <graph-file-data> <source>");
+        exit(0);
+    }
 
-    graph = read_directed_weighted_graph("graph-directed-weighted.txt", V);
+    int V;
+    int source = atoi(argv[2]);
+    int* dis = (int*)malloc(V * sizeof(int));
+    int* parent = (int*)malloc(V * sizeof(int));
+
+
+    int** graph = read_directed_weighted_graph(argv[1], V);
     print_graph(graph, V);
 
-    int source = 0;
     Node** node_array = (Node**)malloc(V * sizeof(Node*));
-    Dijkstra_shortest_path(graph, V, 0, node_array);
+    Dijkstra_array(graph, V, 0, node_array);
+    // 从node_array中读取dis和parent信息
+    for(int i=0; i<V; i++){
+        dis[i] = node_array[i]->dis;
+        parent[i] = node_array[i]->parent;
+    }
+    print_all_destination_paths(parent, V, source);
 
-    print_shortest_path(node_array, V, 0, 2);
-}
+
+    //vector<vector<AdjNode*> > graph = read_directed_weighted_adjlist(argv[1], V);
+    //print_adjlist_graph(graph, V);
+
+    //Dijkstra_adjlist(graph, V, source, dis, parent);
+    //print_all_destination_paths(parent, V, source);
+
+
+    cout << "shortest distance from " << source << ":" << endl;
+    for(int i=0; i<V; i++){
+        cout << dis[i] << " ";
+    }
+    cout << endl;
+}*/

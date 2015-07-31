@@ -5,16 +5,13 @@
 
 #include "graph.h"
 
-// 之所以不使用climits中的INT_MAX，是因为相加可能溢出
-#define MAX_DIST 10000
-
 using namespace std;
 
 void initialize_single_source(int V, int source, int* dis, int* parent){
     int i;
     for(i=0; i<V; i++){
         dis[i] = MAX_DIST;
-        parent[i] = NULL;
+        parent[i] = -1;
     }
 
     dis[source] = 0;
@@ -56,6 +53,7 @@ bool Bellman_Ford(vector< vector<AdjNode*> > graph, int V, int source, int* dis,
     return true;
 }
 
+/*
 int main(int argc, char const *argv[]){
     if(argc < 3){
         printf("./Bellman_Ford <graph-file-data> <source>");
@@ -78,4 +76,4 @@ int main(int argc, char const *argv[]){
     }else{
         print_all_destination_paths(parent, V, source);
     }
-}
+}*/

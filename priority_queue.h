@@ -1,3 +1,6 @@
+#ifndef __PRIORITY_QUEUE__
+#define __PRIORITY_QUEUE__
+
 #include <iostream>
 #include <map>
 #include <cassert>
@@ -104,10 +107,13 @@ public:
             cout << "Current key is even smaller than the given key." << endl;
         }
         set_key(A[i], key);
-        while(i > 1 && get_key(A[i/2]) > get_key(A[i])){
+        int parent = i / 2;
+        while(i > 1 && get_key(A[parent]) > get_key(A[i])){
             // swap A[i/2] and A[i]
             //cout << "Exchanging between " << i << " and " << i/2 << endl;
-            exchange(i, i/2);
+            exchange(i, parent);
+            i = parent;
+            parent = i / 2;
         }
     }
 
@@ -135,3 +141,5 @@ public:
         }
     }
 };
+
+#endif
